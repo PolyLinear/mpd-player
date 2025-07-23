@@ -15,6 +15,16 @@ pub enum MPDError {
     FailedWrite,
     FailedCommand,
 }
+macro_rules! lines {
+    ($client:expr) => {
+        $client
+            .read_con
+            .by_ref()
+            .lines()
+            .flatten()
+            .take_while(|line| line != "OK")
+    };
+}
 
 impl std::fmt::Display for MPDError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -70,13 +80,7 @@ impl MPDClient {
         let first = self.mpd_command(b"playlist\n")?;
         let mut playlist = Vec::with_capacity(16);
         playlist.push(first);
-        playlist.extend(
-            self.read_con
-                .by_ref()
-                .lines()
-                .flatten()
-                .take_while(|line| line != "OK"),
-        );
+        playlist.extend(lines!(self));
 
         Ok(playlist)
     }
@@ -85,13 +89,7 @@ impl MPDClient {
         let first = self.mpd_command(format!("listplaylist {}\n", name).as_bytes())?;
         let mut playlist = Vec::with_capacity(16);
         playlist.push(first);
-        playlist.extend(
-            self.read_con
-                .by_ref()
-                .lines()
-                .flatten()
-                .take_while(|line| line != "OK"),
-        );
+        playlist.extend(lines!(self));
 
         Ok(playlist)
     }

@@ -66,8 +66,23 @@ impl MPDClient {
         Ok(buffer)
     }
 
-    pub fn get_playlist(&mut self) -> Result<Vec<String>, MPDError> {
+    pub fn playlist(&mut self) -> Result<Vec<String>, MPDError> {
         let first = self.mpd_command(b"playlist\n")?;
+        let mut playlist = Vec::with_capacity(16);
+        playlist.push(first);
+        playlist.extend(
+            self.read_con
+                .by_ref()
+                .lines()
+                .flatten()
+                .take_while(|line| line != "OK"),
+        );
+
+        Ok(playlist)
+    }
+
+    pub fn list_playlist(&mut self, name: &str) -> Result<Vec<String>, MPDError> {
+        let first = self.mpd_command(format!("listplaylist {}\n", name).as_bytes())?;
         let mut playlist = Vec::with_capacity(16);
         playlist.push(first);
         playlist.extend(

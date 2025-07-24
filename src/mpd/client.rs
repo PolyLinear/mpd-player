@@ -1,4 +1,4 @@
-#![allow(unused)]
+#![allow(unused, non_snake_case)]
 use std::{
     error::Error,
     io::{BufRead, BufReader, BufWriter, Read, Write},
@@ -111,6 +111,27 @@ impl std::fmt::Display for MPDError {
             Self::FailedWrite => write!(f, "{}", "Failed to write to socket".to_string()),
             Self::FailedCommand => write!(f, "{}", "Failed to execute the command".to_string()),
         }
+    }
+}
+
+// doesn't follow conventional naming standards. Might be easier to instead
+pub struct MPDSongs {
+    Title: String,
+    Format: String,
+    Artist: String,
+    Date: u32,
+    Album: String,
+    Track: u32,
+    AlbumArtist: String,
+    Time: u32,
+    duration: f32,
+    Pos: u32,
+    Id: u32,
+}
+
+impl MPDSongs {
+    fn new<T: Iterator>(iter: &mut T) -> Result<Self, MPDError> {
+        todo!("Implement MPD SONGS");
     }
 }
 

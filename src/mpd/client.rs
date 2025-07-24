@@ -169,6 +169,7 @@ impl MPDClient {
             .read_line(&mut buffer)
             .map_err(|_| MPDError::FailedCommand)?;
 
+        let _ = buffer.pop();
         if buffer.starts_with("ACK [") {
             return Err(MPDError::FailedCommand);
         }
@@ -209,12 +210,15 @@ impl MPDClient {
         let mut status_pairs = Vec::with_capacity(16);
         status_pairs.push(first);
         status_pairs.extend(lines!(self));
-
         Ok(status_pairs)
     }
 
     pub fn currentsong(&mut self) -> Result<Vec<String>, MPDError> {
-        let _ = self.mpd_command(b"currentsong\n")?;
+        let first = self.mpd_command(b"currentsong\n")?;
+        if first == "OK" {
+            return Ok(vec![]);
+        }
+
         let mut song_pairs = Vec::with_capacity(16);
         song_pairs.extend(lines!(self));
         Ok(song_pairs)
